@@ -1,0 +1,39 @@
+[
+  'java'
+].each {
+  apply plugin: it
+}
+
+version = '1.0.0'
+group = 'ptransform'
+
+ext {
+  release = "SNAPSHOT${System.env.buildnumber ? ('+' + System.env.buildnumber) : ''}"
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compile 'com.google.guava:guava:14.0.1'
+  testCompile 'junit:junit:4.11'
+}
+
+task wrapper(type: Wrapper) {
+  gradleVersion '1.6'
+}
+
+jar {
+  classifier = project.ext.release
+  manifest {
+    attributes(
+      'Implementation-Version': "${project.version}-${project.release}",
+      'Implementation-Title': project.name,
+      'Specification-Version': project.version,
+      'Specification-Title': project.name)
+  }
+}
+
+
+
