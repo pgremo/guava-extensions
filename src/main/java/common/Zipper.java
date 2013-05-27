@@ -5,17 +5,17 @@ import com.google.common.base.Predicate;
 
 import static com.google.common.base.Predicates.instanceOf;
 import static com.google.common.collect.Iterables.*;
-import static common.Cast.cast;
+import static common.CastTo.castTo;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 
 public class Zipper {
 
   public static Zipper zipper(Iterable root) {
-    return new Zipper(instanceOf(Iterable.class), cast(Iterable.class), new Function<Object, Function<Iterable, Object>>() {
+    return new Zipper(instanceOf(Iterable.class), castTo(Iterable.class), new Function<Object, Function<Iterable, Object>>() {
       @Override
       public Function<Iterable, Object> apply(Object node) {
-        return cast(Object.class);
+        return castTo(Object.class);
       }
     }, root);
   }
