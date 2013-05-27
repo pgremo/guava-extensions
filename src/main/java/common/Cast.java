@@ -9,7 +9,7 @@ public class Cast<I, O> implements Function<I, O> {
   private Cast() {
   }
 
-  public static <I, O> Cast<I, O> cast() {
+  public static <I, O> Cast<I, O> cast(Class<O> _) {
     return instance;
   }
 

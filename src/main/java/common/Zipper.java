@@ -12,10 +12,10 @@ import static java.util.Collections.singleton;
 public class Zipper {
 
   public static Zipper zipper(Iterable root) {
-    return new Zipper(instanceOf(Iterable.class), Cast.<Object, Iterable>cast(), new Function<Object, Function<Iterable, Object>>() {
+    return new Zipper(instanceOf(Iterable.class), cast(Iterable.class), new Function<Object, Function<Iterable, Object>>() {
       @Override
       public Function<Iterable, Object> apply(Object node) {
-        return cast();
+        return cast(Object.class);
       }
     }, root);
   }
