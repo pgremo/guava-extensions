@@ -1,7 +1,6 @@
 package common;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,7 +17,6 @@ import static org.junit.Assert.assertTrue;
 
 public class FourLevelTreeZipperTest {
 
-  private Predicate<Object> isBranch = instanceOf(Iterable.class);
   private Iterable<Iterable<?>> root;
   private Zipper zipper;
 
@@ -40,7 +38,7 @@ public class FourLevelTreeZipperTest {
 
   @Test
   public void should_traverse_rest() {
-    assertEquals($(5, 6, 7, 8, 9), newArrayList(filter(new ZipperNodeIterator(zipper), not(isBranch))));
+    assertEquals($(5, 6, 7, 8, 9), newArrayList(filter(new ZipperNodeIterator(zipper), not(instanceOf(Iterable.class)))));
   }
 
   @Test

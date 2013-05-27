@@ -3,9 +3,9 @@ package common;
 import com.google.common.collect.AbstractIterator;
 
 public class ZipperNodeIterator extends AbstractIterator {
-  private common.Zipper source;
+  private Zipper source;
 
-  ZipperNodeIterator(common.Zipper source) {
+  ZipperNodeIterator(Zipper source) {
     this.source = source;
   }
 
