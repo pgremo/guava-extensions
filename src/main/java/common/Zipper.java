@@ -11,15 +11,6 @@ import static java.util.Collections.singleton;
 
 public class Zipper {
 
-  public static Zipper zipper(Iterable root) {
-    return new Zipper(instanceOf(Iterable.class), castTo(Iterable.class), new Function<Object, Function<Iterable, Object>>() {
-      @Override
-      public Function<Iterable, Object> apply(Object node) {
-        return castTo(Object.class);
-      }
-    }, root);
-  }
-
   private Predicate<Object> isBranch;
   private Function<Object, Iterable> getChildren;
   private Function<Object, Function<Iterable, Object>> makeNode;
@@ -44,6 +35,15 @@ public class Zipper {
     this.isChanged = isChanged;
   }
 
+  public static Zipper zipper(Iterable root) {
+    return new Zipper(instanceOf(Iterable.class), castTo(Iterable.class), new Function<Object, Function<Iterable, Object>>() {
+      @Override
+      public Function<Iterable, Object> apply(Object node) {
+        return castTo(Object.class);
+      }
+    }, root);
+  }
+
   public Object node() {
     return node;
   }
@@ -59,6 +59,7 @@ public class Zipper {
   public Zipper down() {
     if (!isBranch.apply(node)) return null;
     Iterable children = getChildren.apply(node);
+    if (isEmpty(children)) return null;
     return new Zipper(
       isBranch,
       getChildren,
@@ -111,7 +112,8 @@ public class Zipper {
 
   public Zipper left() {
     if (isEmpty(lefts)) return null;
-    return new Zipper(isBranch,
+    return new Zipper(
+      isBranch,
       getChildren,
       makeNode,
       getLast(lefts, null),
@@ -126,22 +128,25 @@ public class Zipper {
   }
 
   public Zipper next() {
-    if (isBranch.apply(node)) return down();
+    if (isBranch.apply(node)) {
+      Zipper down = down();
+      if (down != null) return down;
+    }
     Zipper right = right();
     if (right != null) return right;
     Zipper p = this;
     while (true) {
-      if (p.up() == null)
+      Zipper up = p.up();
+      if (up == null)
         return new End(
           isBranch,
           getChildren,
           makeNode,
-          makeNode,
-          emptyList(),
-          emptyList(),
-          this,
+          p.node,
+          p.lefts,
+          p.rights,
+          p.parent,
           isChanged);
-      Zipper up = p.up();
       right = up.right();
       if (right != null) return right;
       p = up;
@@ -152,7 +157,7 @@ public class Zipper {
     if (isEmpty(lefts)) return up();
     Zipper left = left();
     while (true) {
-      Zipper child = isBranch.apply(left) ? left.down() : null;
+      Zipper child = isBranch.apply(left.node) ? left.down() : null;
       if (child == null) return left;
       left = child.rightMost();
     }
@@ -166,21 +171,29 @@ public class Zipper {
       makeNode,
       makeNode.apply(parent.node()).apply(rights),
       emptyList(),
-      rights,
+      parent.rights,
       parent.parent,
       true
     );
-    Zipper left = left();
+    Zipper left = new Zipper(
+      isBranch,
+      getChildren,
+      makeNode,
+      getLast(lefts, null),
+      limit(lefts, size(lefts) - 1),
+      rights,
+      parent,
+      isChanged);
     while (true) {
-      Zipper child = isBranch.apply(left) ? left.down() : null;
+      Zipper child = isBranch.apply(left.node()) ? left.down() : null;
       if (child == null) return new Zipper(
         left.isBranch,
         left.getChildren,
         left.makeNode,
-        left,
+        left.node,
         left.lefts,
         left.rights,
-        left.parent.parent,
+        left.parent,
         true
       );
       left = child.rightMost();
