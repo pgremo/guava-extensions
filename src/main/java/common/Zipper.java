@@ -1,6 +1,7 @@
 package common;
 
 import com.google.common.base.Function;
+import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
 
 import static com.google.common.base.Predicates.instanceOf;
@@ -36,12 +37,7 @@ public class Zipper {
   }
 
   public static Zipper zipper(Iterable root) {
-    return new Zipper(instanceOf(Iterable.class), castTo(Iterable.class), new Function<Object, Function<Iterable, Object>>() {
-      @Override
-      public Function<Iterable, Object> apply(Object node) {
-        return castTo(Object.class);
-      }
-    }, root);
+    return new Zipper(instanceOf(Iterable.class), castTo(Iterable.class), Functions.<Function<Iterable, Object>>constant(CastTo.<Iterable, Object>castTo(Object.class)), root);
   }
 
   public Object node() {
@@ -68,7 +64,8 @@ public class Zipper {
       emptyList(),
       skip(children, 1),
       this,
-      isChanged);
+      isChanged
+    );
   }
 
   public Zipper up() {
@@ -81,7 +78,8 @@ public class Zipper {
       parent.lefts,
       parent.rights,
       parent.parent,
-      isChanged);
+      isChanged
+    );
   }
 
   public Zipper right() {
@@ -94,7 +92,8 @@ public class Zipper {
       concat(lefts, singleton(node)),
       skip(rights, 1),
       parent,
-      isChanged);
+      isChanged
+    );
   }
 
   public Zipper rightMost() {
@@ -107,7 +106,8 @@ public class Zipper {
       concat(lefts, singleton(node), limit(rights, size(rights) - 1)),
       emptyList(),
       parent,
-      isChanged);
+      isChanged
+    );
   }
 
   public Zipper left() {
@@ -120,7 +120,8 @@ public class Zipper {
       limit(lefts, size(lefts) - 1),
       concat(singleton(node), rights),
       parent,
-      isChanged);
+      isChanged
+    );
   }
 
   public boolean end() {
@@ -146,7 +147,8 @@ public class Zipper {
           p.lefts,
           p.rights,
           p.parent,
-          isChanged);
+          isChanged
+        );
       right = up.right();
       if (right != null) return right;
       p = up;
@@ -170,7 +172,7 @@ public class Zipper {
       getChildren,
       makeNode,
       makeNode.apply(parent.node()).apply(rights),
-      emptyList(),
+      parent.lefts,
       parent.rights,
       parent.parent,
       true
@@ -183,7 +185,8 @@ public class Zipper {
       limit(lefts, size(lefts) - 1),
       rights,
       parent,
-      isChanged);
+      true
+    );
     while (true) {
       Zipper child = isBranch.apply(left.node()) ? left.down() : null;
       if (child == null) return new Zipper(
